@@ -1,10 +1,9 @@
 class Node:
-    """Nó da Red-Black Tree com contador para elementos repetidos."""
     
     def __init__(self, data):
         self.data = data
         self.color = '🔴' 
-        self.count = 1  # Contador para elementos repetidos
+        self.count = 1  
         self.left = None
         self.right = None
         self.parent = None
@@ -25,7 +24,6 @@ class RedBlackTree:
         self.root = self.NIL
 
     def insert(self, data):
-        """Insere um novo valor na árvore. Se o valor já existe, incrementa o contador."""
         parent = None
         current = self.root
         
