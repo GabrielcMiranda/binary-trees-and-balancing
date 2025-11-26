@@ -27,11 +27,10 @@ class RedBlackTree:
         parent = None
         current = self.root
         
-        # Busca a posição correta ou nó existente
         while current != self.NIL:
             parent = current
             if data == current.data:
-                # Valor já existe, incrementa o contador
+                
                 current.count += 1
                 return
             elif data < current.data:
@@ -39,13 +38,11 @@ class RedBlackTree:
             else:
                 current = current.right
         
-        # Cria novo nó
         new_node = Node(data)
         new_node.left = self.NIL
         new_node.right = self.NIL
         new_node.parent = parent
         
-        # Insere o nó na posição encontrada
         if parent is None:
             self.root = new_node
         elif data < parent.data:
@@ -53,16 +50,13 @@ class RedBlackTree:
         else:
             parent.right = new_node
         
-        # Se for a raiz, pinta de preto e retorna
         if new_node.parent is None:
             new_node.color = '⚫'
             return
         
-        # Se o avô for None, retorna
         if new_node.parent.parent is None:
             return
         
-        # Corrige a árvore após inserção
         self._fix_insert(new_node)
 
     def _fix_insert(self, node):
@@ -164,17 +158,15 @@ class RedBlackTree:
         return self._search_helper(node.right, data)
 
     def delete(self, data):
-        """Remove um valor da árvore. Se houver múltiplas ocorrências, decrementa o contador."""
+      
         node = self.search(data)
         if node is None:
             return False
         
-        # Se há múltiplas ocorrências, apenas decrementa o contador
         if node.count > 1:
             node.count -= 1
             return True
         
-        # Remove o nó da árvore
         self._delete_node(node)
         return True
 
@@ -280,22 +272,7 @@ class RedBlackTree:
         return node
 
     def visualize(self, filename="red_black_tree", view=True):
-        """
-        Gera uma visualização gráfica da árvore usando Graphviz.
         
-        Args:
-            filename (str): Nome do arquivo de saída (sem extensão)
-            view (bool): Se True, abre automaticamente a visualização
-            
-        Returns:
-            str: Caminho do arquivo gerado
-            
-        Nota:
-            Requer Graphviz instalado no sistema:
-            - Windows: https://graphviz.org/download/ ou 'winget install graphviz'
-            - Linux: sudo apt install graphviz
-            - Mac: brew install graphviz
-        """
         try:
             from graphviz import Digraph
             import os
@@ -309,26 +286,22 @@ class RedBlackTree:
                 "- Mac: brew install graphviz"
             )
         
-        # Criar pasta files se não existir
         current_dir = os.path.dirname(os.path.abspath(__file__))
         files_dir = os.path.join(current_dir, 'files')
         os.makedirs(files_dir, exist_ok=True)
         
-        # Caminho completo do arquivo
         output_path = os.path.join(files_dir, filename)
         
         dot = Digraph(comment='Red-Black Tree')
         dot.attr(rankdir='TB')
         dot.attr('node', shape='circle', style='filled', fontsize='12', fontname='Arial Bold')
         
-        # Contador para nós NIL únicos
         nil_counter = [0]
         
         def add_nodes(node):
             if node == self.NIL:
                 return
             
-            # Configura cor do nó
             if node.color == '🔴':
                 color = 'red'
                 fontcolor = 'white'
@@ -336,7 +309,7 @@ class RedBlackTree:
                 color = 'black'
                 fontcolor = 'white'
             
-            # Label do nó com contador se > 1
+
             if node.count > 1:
                 label = f"{node.data}\n({node.count})"
             else:
