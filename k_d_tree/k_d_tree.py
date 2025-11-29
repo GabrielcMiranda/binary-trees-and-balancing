@@ -1,8 +1,7 @@
 from graphviz import Digraph
-import math
 
 class Node:
-    def __init__(self, point: list[float], depth: int = 0, k: int = 2):
+    def __init__(self, point, depth, k):
         self.point = point
         self.depth = depth
         self.k = k
@@ -15,12 +14,12 @@ class Node:
         return self.depth % self.k
 
 class KDTree:
-    def __init__(self, k: int = 2):
+    def __init__(self, k):
         self.k = k
         self.root = None
         self.size = 0
 
-    def insert(self, point: list[float]) -> bool:
+    def insert(self, point):
         if self.root is None:
             self.root = Node(point, 0, self.k)
             self.size += 1
@@ -40,7 +39,7 @@ class KDTree:
                     node.left = Node(point, depth + 1, self.k)
                     node.left.parent = node
                     self.size += 1
-                    self._check_and_rebuild()
+                    self.rebalance()
                     return True
                 else:
                     node = node.left
@@ -50,13 +49,13 @@ class KDTree:
                     node.right = Node(point, depth + 1, self.k)
                     node.right.parent = node
                     self.size += 1
-                    self._check_and_rebuild()
+                    self.rebalance()
                     return True
                 else:
                     node = node.right
                     depth += 1
 
-    def delete(self, point: list[float]) -> bool:
+    def delete(self, point):
         node = self.root
         parent = None
         is_left_child = False
@@ -115,7 +114,6 @@ class KDTree:
         
         # dois filhos
         else:
-            # Encontrar o mínimo na subárvore direita (iterativo!)
             min_node = node.right
             min_parent = node
             
@@ -123,27 +121,23 @@ class KDTree:
                 min_parent = min_node
                 min_node = min_node.left
             
-            # Substituir o nó pelo mínimo
             node.point = min_node.point
             
-            # Agora deletar o mínimo (que tem no máximo um filho direito)
             if min_parent == node:
-                # Mínimo é filho direito direto
                 node.right = min_node.right
                 if min_node.right:
                     min_node.right.parent = node
             else:
-                # Mínimo é neto
                 min_parent.left = min_node.right
                 if min_node.right:
                     min_node.right.parent = min_parent
         
         if self.root:
-            self._check_and_rebuild()
+            self.rebalance()
         
         return True
 
-    def search(self, point: list[float]) -> list[float] | None:
+    def search(self, point):
         node = self.root
         depth = 0
         
@@ -162,11 +156,10 @@ class KDTree:
         
         return None
 
-    def _check_and_rebuild(self):
+    def rebalance(self):
         if self.size < 3:
             return
-        
-        # coletando os pontos de coordenada dos nós
+
         points = []
         stack = [self.root]
         
@@ -179,12 +172,10 @@ class KDTree:
                 if node.left:
                     stack.append(node.left)
         
-        # Construindo a árvore novamente
         if not points:
             self.root = None
             return
         
-        # pilha
         stack = [(0, len(points), 0, None, False)]
         self.root = None
         
@@ -194,12 +185,10 @@ class KDTree:
             if start >= end:
                 continue
             
-            # ordena pelo eixo atual e encontra mediana
             axis = depth % self.k
             mid = (start + end) // 2
             points[start:end] = sorted(points[start:end], key=lambda p: p[axis])
             
-            # cria o no
             node = Node(points[mid], depth, self.k)
             node.parent = parent
             
@@ -210,33 +199,32 @@ class KDTree:
             else:
                 parent.right = node
             
-            # adiciona subárvores à pilha (direita primeiro, depois esquerda)
             if mid + 1 < end:
                 stack.append((mid + 1, end, depth + 1, node, False))
             if start < mid:
                 stack.append((start, mid, depth + 1, node, True))
 
-    def visualize(self, filename: str = "kdtree", silent: bool = False) -> str:
+    def print_tree(self, filename, silent):
         if self.root is None:
             if not silent:
                 print("Árvore vazia!")
             return ""
         
-        dot = Digraph(comment='k-D Tree', format='png')
-        dot.attr(rankdir='TB', bgcolor='white')
-        dot.attr('node', shape='circle', style='filled', fillcolor='#4ECDC4', 
+        digraph = Digraph(comment='k-D Tree', format='png')
+        digraph.attr(rankdir='TB', bgcolor='white')
+        digraph.attr('node', shape='circle', style='filled', fillcolor='#4ECDC4', 
                 color='black', penwidth='2.5', fontname='monospace', fontsize='14', fontweight='bold')
-        dot.attr('edge', color='black', penwidth='2')
+        digraph.attr('edge', color='black', penwidth='2')
         
         counter = [0]
-        self._add_nodes_to_graph(self.root, dot, counter)
+        self.add_nodes(self.root, digraph, counter)
         
-        output_path = dot.render(filename, cleanup=True)
+        output_path = digraph.render(filename, cleanup=True)
         if not silent:
             print(f"Visualização gerada: {output_path}")
         return output_path
     
-    def _add_nodes_to_graph(self, root: Node | None, dot: Digraph, counter: list):
+    def add_nodes(self, root, digraph, counter):
         if root is None:
             return
         
@@ -256,12 +244,12 @@ class KDTree:
             label = coords_str.replace(', ', '\n')
             
             if eh_raiz:
-                dot.node(node_id, label=label, fillcolor='#FF6B6B', fontsize='16')
+                digraph.node(node_id, label=label, fillcolor='#FF6B6B', fontsize='16')
             else:
-                dot.node(node_id, label=label)
+                digraph.node(node_id, label=label)
 
             if parent_id is not None:
-                dot.edge(parent_id, node_id)
+                digraph.edge(parent_id, node_id)
             
             # adicionando os filhos
             if node.right:

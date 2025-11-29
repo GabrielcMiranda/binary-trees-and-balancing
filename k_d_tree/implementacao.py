@@ -25,10 +25,10 @@ def inserir_ponto(tree, contador_insercoes):
     
     remover_arquivo_se_existir(caminho_kd_tree("estado_atual_antes.png"))
     remover_arquivo_se_existir(caminho_kd_tree("estado_atual_depois.png"))
-    tree.visualize(caminho_kd_tree("estado_atual_antes"), silent=True)
+    tree.print_tree(caminho_kd_tree("estado_atual_antes"), silent=True)
     
     if tree.insert(ponto):
-        tree.visualize(caminho_kd_tree("estado_atual_depois"), silent=True)
+        tree.print_tree(caminho_kd_tree("estado_atual_depois"), silent=True)
         
         print(f"\nPonto {ponto} inserido com sucesso!")
         print(f"Árvore agora tem {tree.size} pontos")
@@ -58,10 +58,10 @@ def remover_ponto(tree, contador_remocoes):
     
     remover_arquivo_se_existir(caminho_kd_tree("estado_atual_antes.png"))
     remover_arquivo_se_existir(caminho_kd_tree("estado_atual_depois.png"))
-    tree.visualize(caminho_kd_tree("estado_atual_antes"), silent=True)
+    tree.print_tree(caminho_kd_tree("estado_atual_antes"), silent=True)
     
     if tree.delete(ponto):
-        tree.visualize(caminho_kd_tree("estado_atual_depois"), silent=True)
+        tree.print_tree(caminho_kd_tree("estado_atual_depois"), silent=True)
         
         print(f"\nPonto {ponto} removido com sucesso!")
         print(f"Árvore agora tem {tree.size} pontos")
@@ -85,10 +85,6 @@ def buscar_ponto(tree):
         print("Erro: Digite apenas números válidos!")
         return
     
-    remover_arquivo_se_existir(caminho_kd_tree("estado_atual.png"))
-    print(f"\nGerando visualização do estado atual...")
-    tree.visualize(caminho_kd_tree("estado_atual"), silent=True)
-    
     resultado = tree.search(ponto)
     
     print("=====================================")
@@ -98,17 +94,14 @@ def buscar_ponto(tree):
     else:
         print(f"Ponto não encontrado!")
         print(f"\nO ponto {ponto} não existe na árvore.")
-    
-    print(f"\nEstado atual salvo em: k_d_tree/estado_atual.png")
-
 
 def visualizar_arvore(tree):
     if tree.root is None:
-        print("\n⚠️ Árvore está vazia!")
+        print("\nÁrvore está vazia!")
         return
     
     remover_arquivo_se_existir(caminho_kd_tree("estado_atual.png"))
-    tree.visualize(caminho_kd_tree("estado_atual"))
+    tree.print_tree(caminho_kd_tree("estado_atual"), True)
     print("Arquivo para visualizar a árvore gerado em k_d_tree/estado_atual.png!")
 
 def mostrar_info_arvore(tree):
