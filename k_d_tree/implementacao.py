@@ -5,6 +5,10 @@ def remover_arquivo_se_existir(caminho):
     if os.path.exists(caminho):
         os.remove(caminho)
 
+def caminho_kd_tree(nome):
+    pasta = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(pasta, nome)
+
 def inserir_ponto(tree, contador_insercoes):
     print("Inserindo ponto:")
     
@@ -19,13 +23,12 @@ def inserir_ponto(tree, contador_insercoes):
         print("Erro: Digite apenas números válidos!")
         return contador_insercoes
     
-    remover_arquivo_se_existir("estado_atual_antes.png")
-    remover_arquivo_se_existir("estado_atual_depois.png")
-    
-    tree.visualize("estado_atual_antes", silent=True)
+    remover_arquivo_se_existir(caminho_kd_tree("estado_atual_antes.png"))
+    remover_arquivo_se_existir(caminho_kd_tree("estado_atual_depois.png"))
+    tree.visualize(caminho_kd_tree("estado_atual_antes"), silent=True)
     
     if tree.insert(ponto):
-        tree.visualize("estado_atual_depois", silent=True)
+        tree.visualize(caminho_kd_tree("estado_atual_depois"), silent=True)
         
         print(f"\nPonto {ponto} inserido com sucesso!")
         print(f"Árvore agora tem {tree.size} pontos")
@@ -53,13 +56,12 @@ def remover_ponto(tree, contador_remocoes):
         print(f"\nPonto {ponto} não encontrado na árvore!")
         return contador_remocoes
     
-    remover_arquivo_se_existir("estado_atual_antes.png")
-    remover_arquivo_se_existir("estado_atual_depois.png")
-    
-    tree.visualize("estado_atual_antes", silent=True)
+    remover_arquivo_se_existir(caminho_kd_tree("estado_atual_antes.png"))
+    remover_arquivo_se_existir(caminho_kd_tree("estado_atual_depois.png"))
+    tree.visualize(caminho_kd_tree("estado_atual_antes"), silent=True)
     
     if tree.delete(ponto):
-        tree.visualize("estado_atual_depois", silent=True)
+        tree.visualize(caminho_kd_tree("estado_atual_depois"), silent=True)
         
         print(f"\nPonto {ponto} removido com sucesso!")
         print(f"Árvore agora tem {tree.size} pontos")
@@ -83,10 +85,9 @@ def buscar_ponto(tree):
         print("Erro: Digite apenas números válidos!")
         return
     
-    remover_arquivo_se_existir("estado_atual.png")
-    
+    remover_arquivo_se_existir(caminho_kd_tree("estado_atual.png"))
     print(f"\nGerando visualização do estado atual...")
-    tree.visualize("estado_atual", silent=True)
+    tree.visualize(caminho_kd_tree("estado_atual"), silent=True)
     
     resultado = tree.search(ponto)
     
@@ -98,7 +99,7 @@ def buscar_ponto(tree):
         print(f"Ponto não encontrado!")
         print(f"\nO ponto {ponto} não existe na árvore.")
     
-    print(f"\nEstado atual salvo em: estado_atual.png")
+    print(f"\nEstado atual salvo em: k_d_tree/estado_atual.png")
 
 
 def visualizar_arvore(tree):
@@ -106,11 +107,9 @@ def visualizar_arvore(tree):
         print("\n⚠️ Árvore está vazia!")
         return
     
-    remover_arquivo_se_existir("estado_atual.png")
-
-    tree.visualize("estado_atual")
-
-    print("Arquivo para visualizar a árvore gerado!")
+    remover_arquivo_se_existir(caminho_kd_tree("estado_atual.png"))
+    tree.visualize(caminho_kd_tree("estado_atual"))
+    print("Arquivo para visualizar a árvore gerado em k_d_tree/estado_atual.png!")
 
 def mostrar_info_arvore(tree):
     print("\nInformações da árvore:")
