@@ -35,56 +35,26 @@ class BTree234Session:
         """Cria a estrutura de pastas para armazenar as visualizações."""
         current_dir = os.path.dirname(os.path.abspath(__file__))
         base_path = os.path.join(current_dir, 'files', self.session_name)
-        
         os.makedirs(os.path.join(base_path, 'insercoes'), exist_ok=True)
         os.makedirs(os.path.join(base_path, 'remocoes'), exist_ok=True)
-        os.makedirs(os.path.join(base_path, 'buscas'), exist_ok=True)
-        
+        # Não cria mais a pasta buscas
         return base_path
     
-    def _save_visualization(self, filename, subfolder=None, estado=""):
+    def _save_visualization(self, filename, subfolder=None):
         """Salva a visualização da árvore em arquivo PNG com graphviz."""
+        if not filename.endswith('.png'):
+            filename = f"{filename}.png"
         if subfolder:
             folder_path = os.path.join(self.base_path, subfolder)
         else:
             folder_path = self.base_path
-        
         try:
             os.makedirs(folder_path, exist_ok=True)
-            
-            # Gerar visualização com graphviz
             output_path = os.path.join(folder_path, filename)
-            rendered_path = self.tree.visualize(output_path, view=False)
-            
-            # Salvar também um arquivo de texto com informações
-            txt_path = os.path.join(folder_path, f"{filename}.txt")
-            with open(txt_path, 'w', encoding='utf-8') as f:
-                f.write("=" * 70 + "\n")
-                f.write("VISUALIZAÇÃO DA ÁRVORE 2-3-4\n")
-                f.write(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-                f.write("=" * 70 + "\n\n")
-                
-                if estado:
-                    f.write(f"Estado: {estado}\n")
-                    f.write("-" * 70 + "\n\n")
-                
-                f.write("ESTRUTURA DA ÁRVORE:\n")
-                f.write("-" * 70 + "\n")
-                f.write(self._get_tree_structure() + "\n\n")
-                
-                f.write("TRAVESSIA EM-ORDEM:\n")
-                f.write("-" * 70 + "\n")
-                chaves = self.tree.traverse()
-                f.write(str(chaves) + "\n\n")
-                
-                f.write("INFORMAÇÕES:\n")
-                f.write("-" * 70 + "\n")
-                info = self._get_info_arvore()
-                f.write(f"Total de nós: {info['total_nos']}\n")
-                f.write(f"Total de chaves: {info['total_chaves']}\n")
-                f.write(f"Raiz: {info['raiz'] if info['raiz'] else '(Vazia)'}\n")
-                f.write(f"Profundidade: {info['profundidade']}\n")
-            
+            # Remove extensão duplicada se houver
+            if output_path.endswith('.png.png'):
+                output_path = output_path[:-4]
+            rendered_path = self.tree.visualize(output_path[:-4], view=False)
             return rendered_path
         except Exception as e:
             print(f"❌ Erro ao gerar visualização: {e}")
@@ -179,35 +149,26 @@ class BTree234Session:
         print("\n" + "=" * 60)
         print("INSERIR NÓ")
         print("=" * 60)
-        
         try:
             valor = input("\nDigite o valor a inserir (número inteiro): ").strip()
             valor = int(valor)
         except ValueError:
             print("❌ Erro: Digite um número inteiro válido!")
             return
-        
         print(f"\n📊 Salvando estado ANTES da inserção...")
-        antes_path = self._save_visualization(f"valor_{valor}_antes", "insercoes", f"Antes de inserir {valor}")
-        
+        antes_path = self._save_visualization(f"valor_{valor}_antes.png", "insercoes")
         inserido = self.tree.insert(valor)
-        
         print(f"📊 Salvando estado DEPOIS da inserção...")
-        depois_path = self._save_visualization(f"valor_{valor}_depois", "insercoes", f"Depois de inserir {valor}")
-        
+        depois_path = self._save_visualization(f"valor_{valor}_depois.png", "insercoes")
         if inserido:
             print(f"\n✅ Valor {valor} inserido com sucesso!")
-            self._log_operacao("INSERÇÃO", f"Valor {valor} inserido com sucesso")
         else:
             print(f"\n⚠️  Valor {valor} já existe na árvore (duplicata ignorada)!")
-            self._log_operacao("INSERÇÃO REJEITADA", f"Valor {valor} já existia na árvore")
-        
         print(f"\n📁 Arquivos salvos em:")
         if antes_path:
             print(f"   • Antes:  {os.path.basename(antes_path)}")
         if depois_path:
             print(f"   • Depois: {os.path.basename(depois_path)}")
-        
         self._exibir_estado_arvore()
     
     def remover_no(self):
@@ -215,40 +176,30 @@ class BTree234Session:
         print("\n" + "=" * 60)
         print("REMOVER NÓ")
         print("=" * 60)
-        
         try:
             valor = input("\nDigite o valor a remover (número inteiro): ").strip()
             valor = int(valor)
         except ValueError:
             print("❌ Erro: Digite um número inteiro válido!")
             return
-        
         node, idx = self.tree.search(valor)
         if not node:
             print(f"\n❌ Valor {valor} não encontrado na árvore!")
             return
-        
         print(f"\n📊 Salvando estado ANTES da remoção...")
-        antes_path = self._save_visualization(f"valor_{valor}_antes", "remocoes", f"Antes de remover {valor}")
-        
+        antes_path = self._save_visualization(f"valor_{valor}_antes.png", "remocoes")
         removido = self.tree.delete(valor)
-        
         print(f"📊 Salvando estado DEPOIS da remoção...")
-        depois_path = self._save_visualization(f"valor_{valor}_depois", "remocoes", f"Depois de remover {valor}")
-        
+        depois_path = self._save_visualization(f"valor_{valor}_depois.png", "remocoes")
         if removido:
             print(f"\n✅ Valor {valor} removido com sucesso da árvore!")
-            self._log_operacao("REMOÇÃO", f"Valor {valor} removido com sucesso")
         else:
             print(f"\n❌ Erro ao remover o valor {valor}!")
-            self._log_operacao("REMOÇÃO FALHOU", f"Erro ao remover {valor}")
-        
         print(f"\n📁 Arquivos salvos em:")
         if antes_path:
             print(f"   • Antes:  {os.path.basename(antes_path)}")
         if depois_path:
             print(f"   • Depois: {os.path.basename(depois_path)}")
-        
         self._exibir_estado_arvore()
     
     def buscar_no(self):
@@ -256,19 +207,16 @@ class BTree234Session:
         print("\n" + "=" * 60)
         print("BUSCAR NÓ")
         print("=" * 60)
-        
         try:
             valor = input("\nDigite o valor a buscar (número inteiro): ").strip()
             valor = int(valor)
         except ValueError:
             print("❌ Erro: Digite um número inteiro válido!")
             return
-        
         print(f"\n📊 Gerando visualização do estado atual...")
-        estado_path = self._save_visualization("estado_atual", "buscas", f"Busca pelo valor {valor}")
-        
+        # Sempre sobrescreve o mesmo arquivo na raiz da sessão
+        estado_path = self._save_visualization("estado_atual.png")
         node, idx = self.tree.search(valor)
-        
         print(f"\n{'='*60}")
         if node:
             print(f"✅ VALOR ENCONTRADO!")
@@ -279,16 +227,12 @@ class BTree234Session:
             print(f"   • Índice no nó: {idx}")
             print(f"   • Posição na lista: {idx + 1}/{len(node.keys)}")
             print(f"   • É folha: {'Sim' if node.leaf else 'Não'}")
-            self._log_operacao("BUSCA", f"Valor {valor} encontrado no nó {node.keys} no índice {idx}")
         else:
             print(f"❌ VALOR NÃO ENCONTRADO!")
             print(f"{'='*60}")
             print(f"\n   O valor {valor} não existe na árvore.")
-            self._log_operacao("BUSCA", f"Valor {valor} não encontrado na árvore")
-        
         if estado_path:
             print(f"\n📁 Visualização salva em: {os.path.basename(estado_path)}")
-        
         self._exibir_estado_arvore()
     
     def _exibir_estado_arvore(self):
